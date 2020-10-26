@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import artifactDetection
+import thresholdCalculation
 
 # loading asc file into numpy array - ndarray
 ascArray = np.loadtxt("C:/Users/Julia/Desktop/Data/test.asc", skiprows=11)
@@ -10,14 +12,12 @@ print(ascArray.shape)
 print("\n\n")
 
 # loading data from 1 s (128 samples) from channel Fp1 to ndarray
-Fp1 = np.array(ascArray[165120:165632, 1])
+Fp1 = np.array(ascArray[0:165632, 1])
 print(Fp1.shape)
 
 
-xmin = min(Fp1)
-xmax = max(Fp1)
-print(xmin)
-print(xmax)
+print(artifactDetection.detectEEP(Fp1))
+
 
 
 
