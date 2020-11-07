@@ -37,11 +37,16 @@ def calculateThresholdsEEP(minMaxList):
     for (xmin, xmax) in minMaxList:
         xMin = xmin.item()
         xMax = xmax.item()
-        if xMin != 0 and xMax != 0:
+        if xMin != 0:
             xMinNorm = math.log(abs(xMin), 10)
-            xMaxNorm = math.log(xMax, 10)
             minList.append(xMinNorm)
+        elif xMin == 0:
+            minList.append(xMin)
+        if xMax != 0:
+            xMaxNorm = math.log(abs(xMax), 10)
             maxList.append(xMaxNorm)
+        elif xMax == 0:
+            maxList.append(xMax)
 
     # calculating median values in minList and maxList
     minMedian = calculateMedian(minList)
