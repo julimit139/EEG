@@ -3,17 +3,34 @@ import math
 import globalVariables as gV
 import thresholdCalculation as tC
 
-# These functions are written for whole examination time and one channel.
-# Because every detection function is performed for every EEG channel in examination file,
-# there will be one general function dedicated for performing detection functions for every channel (->looping).
-
 
 # 0th
+# function performing any detection function in all channels
+# performed for whole examination time and all channels
+"""
+Performs detection function given by ``detectionFunction`` on all channels given by ``inputData``.
+Parameters:
+    detectionFunction : function
+        Detection function which has to be performed on given data.
+    inputData : ndarray
+        All channels of EEG data.
+Returns:
+    output : list 
+        List of lists of boolean values informing about artifact occurrence in each block of every channel.    
+"""
 
-def performWholeDetection(detectionFunction, inputData):
+
+def performDetection(detectionFunction, inputData):
+    # creating empty list to contain information about artifact occurrence in each block of every channel
+    output = []
+
+    # performing detection function in every channel and appending it's result to output list
     for channelNumber in range(gV.eegChannelNumber):
         channel = np.array(inputData[:, channelNumber + 1])
-        detectionFunction(channel)
+        output.append(detectionFunction(channel))
+
+    # returning list of lists
+    return output
 
 
 # 1st
@@ -63,7 +80,7 @@ def detectEEP(channel):
         xMin = xmin.item()
         xMax = xmax.item()
         if xMin != 0 and xMax != 0:
-            if math.log(abs(xMin), 10) > minThreshold or math.log(xMax, 10) > maxThreshold:
+            if math.log(abs(xMin), 10) > minThreshold or math.log(abs(xMax), 10) > maxThreshold:
                 isArtifact.append(True)
             else:
                 isArtifact.append(False)
