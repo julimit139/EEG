@@ -67,3 +67,19 @@ def calculateThresholdsEEP(minMaxList):
     return thresholds
 
 
+# 2nd
+# function calculating threshold for potentials derived from ECG (7.4.3)
+"""
+Calculates threshold for ECG detection function.
+Called inside the ``performECGDetection`` function. 
+Parameters:
+    None
+Returns:
+    threshold : float 
+        Floating point threshold value. 
+"""
+
+
+def calculateThresholdECG():
+    threshold = float(0.9)
+    return threshold
