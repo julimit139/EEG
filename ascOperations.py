@@ -27,11 +27,11 @@ print("\n\n")
     print(aD.detectEEP(channel))"""
 
 
-print(aD.performDetection(aD.detectEEP, inputData))
+# print(aD.performDetection(aD.detectEEP, inputData))
 
-
-
-
+output = aD.performECGDetection(aD.detectECG, inputData)
+print(output)
+print(len(output))
 
 # signal plotting
 # col = np.where(Fp1 < 100, 'red', 'green')
