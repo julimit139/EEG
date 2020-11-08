@@ -2,6 +2,7 @@ import numpy as np
 import math
 import globalVariables as gV
 import thresholdCalculation as tC
+from scipy import stats
 
 
 # 0th
@@ -34,7 +35,7 @@ def performDetection(detectionFunction, inputData):
 
 
 # 1st
-# function detecting External Electrostatic Potentials - EEP (Potencjały Zewnętrzne Elektrostatyczne - 6.3.1)
+# function detecting External Electrostatic Potentials - EEP (Potencjały zewnętrzne elektrostatyczne - 6.3.1)
 # performed for whole examination time in one channel
 """
 Detects External Electrostatic Potentials (EEP) in channel given by ``channel``.
@@ -92,3 +93,84 @@ def detectEEP(channel):
 
     # returning list informing about artifact occurrences
     return isArtifact
+
+
+# 2nd
+# function detecting potentials derived from ECG (Potencjały związane z czynnością elektryczną serca (pochodzące od EKG) - 6.2.3)
+# performed for one time block in all channels
+"""
+Detects potentials derived from ECG in data block given by ``dataBlock``.
+Parameters:
+    dataBlock : ndarray
+        Fragment of inputData of one time block duration and all channels (ECG and EEG).
+Returns:
+    maxCoefficient : float
+        Maximum value in list of coefficients in a time block.
+"""
+
+
+def detectECG(dataBlock):
+    # array containing correlation coefficient values for a block time and all channels
+    coefficients = []
+
+    # array containing ECG values
+    channelECG = np.array(dataBlock[:, 0])
+
+    # calculating correlation coefficient values for all channels
+    for channelNumber in range(gV.eegChannelNumber):
+        channel = np.array(dataBlock[:, channelNumber + 1])
+        coefficient = stats.pearsonr(channelECG, channel)
+        coefficients.append(coefficient[0])
+
+    # maximum value in list of coefficients in a time block
+    maxCoefficient = max(coefficients)
+    return maxCoefficient
+
+
+# function performing detection function
+"""
+Performs detection function given by ``detectionFunction`` on whole examination data given by ``inputData``.
+Parameters:
+    detectionFunction : function
+        Detection function which has to be performed on given data.
+    inputData : ndarray
+        All channels of EEG data.
+Returns:
+    output : list 
+        List of boolean values informing about artifact occurrence in each time block.    
+"""
+
+
+def performECGDetection(detectionFunction, inputData):
+    # signal is divided into many blocks where each block is 4s long
+    blockDuration = 4
+    # number of blocks (integer, fractional parts are ignored)
+    blockNumber = int(gV.examinationTime / blockDuration)
+    step = blockDuration * gV.samplingRate
+
+    # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
+    startPosition = 0
+    endPosition = startPosition + step
+
+    # getting threshold value from function which calculates it
+    threshold = tC.calculateThresholdECG()
+
+    # creating list to contain boolean values informing about artifact occurrence in each block
+    isArtifact = []
+
+    # finding correlation coefficient maximum value in each block and all channels
+    # and checking if an artifact occurs in a block
+    for i in range(blockNumber):
+        dataBlock = np.array(inputData[startPosition:endPosition, :])
+        maxCoefficient = detectECG(dataBlock)
+        if maxCoefficient > threshold:
+            isArtifact.append(True)
+        else:
+            isArtifact.append(False)
+        startPosition += step
+        endPosition += step
+
+    # returning list informing about artifact occurrences
+    return isArtifact
+
+
