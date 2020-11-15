@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>50</y>
+      <y>110</y>
       <width>571</width>
       <height>31</height>
      </rect>
@@ -36,7 +36,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>100</y>
+      <y>160</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -49,12 +49,15 @@
     <property name="text">
      <string>Method 1</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QRadioButton" name="method2RadioButton">
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>140</y>
+      <y>200</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -72,7 +75,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>180</y>
+      <y>240</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -84,6 +87,24 @@
     </property>
     <property name="text">
      <string>Method 3</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="detectButton">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>330</y>
+      <width>191</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Detect artifacts</string>
     </property>
    </widget>
   </widget>
