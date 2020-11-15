@@ -13,6 +13,42 @@ print(inputData.ndim)
 
 print("\n\n")
 
+arr = np.array(inputData[165376:165632, 1:9])
+newArr = np.swapaxes(arr, 0, 1)
+print(newArr)
+print(newArr.shape)
+"""
+plt.figure(1);
+
+plt.plot(newArr.T);
+
+plt.axis('tight');
+"""
+
+plt.figure(2);
+
+plt.plot(newArr.T + 800*np.arange(7, -1, -1));
+
+plt.plot(np.zeros((256, 8)) + 800*np.arange(7, -1, -1), '--', color='gray');
+
+plt.yticks([]);
+
+# plt.legend();
+
+plt.axis('tight');
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
 # loading data from 1 s from first channel to ndarray (column with index 0 in inputData contains EKG signal)
 
 """for channelNumber in range(gV.eegChannelNumber):
@@ -29,9 +65,9 @@ print("\n\n")
 
 # print(aD.performDetection(aD.detectEEP, inputData))
 
-output = aD.performECGDetection(aD.detectECG, inputData)
-print(output)
-print(len(output))
+# output = aD.performECGDetection(aD.detectECG, inputData)
+# print(output)
+# print(len(output))
 
 # signal plotting
 # col = np.where(Fp1 < 100, 'red', 'green')
@@ -41,3 +77,16 @@ print(len(output))
 plt.xlabel("Number of samples")
 plt.ylabel("Potential value")
 plt.show()"""
+
+
+
+
+
+
+
+
+
+
+
+
+
