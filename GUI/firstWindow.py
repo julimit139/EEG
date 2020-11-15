@@ -9,10 +9,13 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from secondWindow import Ui_secondWindow
+from PyQt5.QtWidgets import QFileDialog
+from GUI.secondWindow import Ui_secondWindow
+from GUI.thirdWindow import Ui_thirdWindow
 
 
 class Ui_firstWindow(object):
+    # function opening second window (after pushing a button)
     def openSecondWindow(self):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_secondWindow()
@@ -20,11 +23,23 @@ class Ui_firstWindow(object):
         firstWindow.hide()
         self.window.show()
 
+    # function browsing files and setting path to file
+    # browses only for asc files
+    # now start path is my desktop, in the end it will be computer
+    # after setting path it is enabled to go to the second window
+    def browseFiles(self):
+        fileName = QFileDialog.getOpenFileName(self.centralwidget, 'Open file', 'C:/Users/Julia/Desktop',
+                                               'asc files (*.asc)')
+        self.pathLineEdit.setText(fileName[0])
+        if self.pathLineEdit.text() is not None:
+            self.nextButton.setEnabled(True)
+
     def setupUi(self, firstWindow):
         firstWindow.setObjectName("firstWindow")
         firstWindow.resize(778, 415)
         self.centralwidget = QtWidgets.QWidget(firstWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.titleLabel = QtWidgets.QLabel(self.centralwidget)
         self.titleLabel.setGeometry(QtCore.QRect(10, 50, 761, 91))
         font = QtGui.QFont()
@@ -32,31 +47,42 @@ class Ui_firstWindow(object):
         self.titleLabel.setFont(font)
         self.titleLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.titleLabel.setObjectName("titleLabel")
+
         self.browseButton = QtWidgets.QPushButton(self.centralwidget)
         self.browseButton.setGeometry(QtCore.QRect(570, 220, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.browseButton.setFont(font)
         self.browseButton.setObjectName("browseButton")
+
+        # connecting clicking browseButton with function which browses file (browseFiles)
+        self.browseButton.clicked.connect(self.browseFiles)
+
         self.pathLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.pathLineEdit.setGeometry(QtCore.QRect(140, 220, 391, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.pathLineEdit.setFont(font)
+        self.pathLineEdit.setReadOnly(True)
         self.pathLineEdit.setObjectName("pathLineEdit")
+
         self.orderLabel = QtWidgets.QLabel(self.centralwidget)
         self.orderLabel.setGeometry(QtCore.QRect(140, 170, 511, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.orderLabel.setFont(font)
         self.orderLabel.setObjectName("orderLabel")
+
         self.nextButton = QtWidgets.QPushButton(self.centralwidget)
         self.nextButton.setGeometry(QtCore.QRect(460, 330, 191, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.nextButton.setFont(font)
         self.nextButton.setObjectName("nextButton")
+        # setting nextButton to disabled at the beginning
+        self.nextButton.setEnabled(False)
 
+        # connecting clicking nextButton with function which opens second window (openSecondWindow)
         self.nextButton.clicked.connect(self.openSecondWindow)
 
         firstWindow.setCentralWidget(self.centralwidget)

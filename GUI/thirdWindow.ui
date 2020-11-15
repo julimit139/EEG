@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>secondWindow</class>
- <widget class="QMainWindow" name="secondWindow">
+ <class>thirdWindow</class>
+ <widget class="QMainWindow" name="thirdWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,12 +14,30 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="orderLabel">
+   <widget class="QLabel" name="plotLabel">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>50</y>
-      <width>571</width>
+      <x>200</x>
+      <y>10</y>
+      <width>361</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>28</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Here will be a plot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="previousButton">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>170</y>
+      <width>120</width>
       <height>31</height>
      </rect>
     </property>
@@ -29,16 +47,16 @@
      </font>
     </property>
     <property name="text">
-     <string>Please choose the detection method you want your file to be processed with:</string>
+     <string>Previous plot</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="method1RadioButton">
+   <widget class="QPushButton" name="nextButton">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>100</y>
-      <width>91</width>
-      <height>17</height>
+      <x>608</x>
+      <y>170</y>
+      <width>120</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -47,43 +65,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Method 1</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="method2RadioButton">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>140</y>
-      <width>91</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Method 2</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="method3RadioButton">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>180</y>
-      <width>91</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Method 3</string>
+     <string>Next plot</string>
     </property>
    </widget>
   </widget>
