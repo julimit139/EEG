@@ -11,10 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from GUI.secondWindow import Ui_secondWindow
+from GUI.thirdWindow import Ui_thirdWindow
 
 
 class Ui_firstWindow(object):
-    # function openinf second window (after pushing a button)
+    # function opening second window (after pushing a button)
     def openSecondWindow(self):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_secondWindow()
@@ -27,7 +28,8 @@ class Ui_firstWindow(object):
     # now start path is my desktop, in the end it will be computer
     # after setting path it is enabled to go to the second window
     def browseFiles(self):
-        fileName = QFileDialog.getOpenFileName(self.centralwidget, 'Open file', 'C:/Users/Julia/Desktop', 'asc files (*.asc)')
+        fileName = QFileDialog.getOpenFileName(self.centralwidget, 'Open file', 'C:/Users/Julia/Desktop',
+                                               'asc files (*.asc)')
         self.pathLineEdit.setText(fileName[0])
         if self.pathLineEdit.text() is not None:
             self.nextButton.setEnabled(True)
@@ -61,6 +63,7 @@ class Ui_firstWindow(object):
         font = QtGui.QFont()
         font.setPointSize(12)
         self.pathLineEdit.setFont(font)
+        self.pathLineEdit.setReadOnly(True)
         self.pathLineEdit.setObjectName("pathLineEdit")
 
         self.orderLabel = QtWidgets.QLabel(self.centralwidget)
