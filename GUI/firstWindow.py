@@ -9,8 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QPushButton, QHBoxLayout
-from secondWindow import Ui_secondWindow
+from PyQt5.QtWidgets import QFileDialog
+from GUI.secondWindow import Ui_secondWindow
 
 
 class Ui_firstWindow(object):
