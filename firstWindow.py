@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QPushButton, QHBoxLayout
 from secondWindow import Ui_secondWindow
 
 
@@ -20,11 +21,16 @@ class Ui_firstWindow(object):
         firstWindow.hide()
         self.window.show()
 
+    def browseFiles(self):
+        fileName = QFileDialog.getOpenFileName(self.centralwidget, 'Open file', 'C:/Users', 'asc files (*.asc)')
+        self.pathLineEdit.setText(fileName[0])
+
     def setupUi(self, firstWindow):
         firstWindow.setObjectName("firstWindow")
         firstWindow.resize(778, 415)
         self.centralwidget = QtWidgets.QWidget(firstWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.titleLabel = QtWidgets.QLabel(self.centralwidget)
         self.titleLabel.setGeometry(QtCore.QRect(10, 50, 761, 91))
         font = QtGui.QFont()
@@ -32,24 +38,32 @@ class Ui_firstWindow(object):
         self.titleLabel.setFont(font)
         self.titleLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.titleLabel.setObjectName("titleLabel")
+
+
         self.browseButton = QtWidgets.QPushButton(self.centralwidget)
         self.browseButton.setGeometry(QtCore.QRect(570, 220, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.browseButton.setFont(font)
         self.browseButton.setObjectName("browseButton")
+
+        self.browseButton.clicked.connect(self.browseFiles)
+
+
         self.pathLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.pathLineEdit.setGeometry(QtCore.QRect(140, 220, 391, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.pathLineEdit.setFont(font)
         self.pathLineEdit.setObjectName("pathLineEdit")
+
         self.orderLabel = QtWidgets.QLabel(self.centralwidget)
         self.orderLabel.setGeometry(QtCore.QRect(140, 170, 511, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.orderLabel.setFont(font)
         self.orderLabel.setObjectName("orderLabel")
+
         self.nextButton = QtWidgets.QPushButton(self.centralwidget)
         self.nextButton.setGeometry(QtCore.QRect(460, 330, 191, 31))
         font = QtGui.QFont()
