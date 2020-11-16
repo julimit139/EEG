@@ -1,17 +1,6 @@
 import numpy as np
-import statistics
 import math
-
-
-# functions calculating median and standard deviation for calculating thresholds of EEP
-def calculateMedian(calcList):
-    median = statistics.median(calcList)
-    return median
-
-
-def calculateStandardDeviation(calcList):
-    standardDeviation = statistics.stdev(calcList)
-    return standardDeviation
+import auxiliaryFunctions as aF
 
 
 # 1st
@@ -49,12 +38,12 @@ def calculateThresholdsEEP(minMaxList):
             maxList.append(xMax)
 
     # calculating median values in minList and maxList
-    minMedian = calculateMedian(minList)
-    maxMedian = calculateMedian(maxList)
+    minMedian = aF.calculateMedian(minList)
+    maxMedian = aF.calculateMedian(maxList)
 
     # calculating standard deviation values in minList and maxList
-    minStandardDeviation = calculateStandardDeviation(minList)
-    maxStandardDeviation = calculateStandardDeviation(maxList)
+    minStandardDeviation = aF.calculateStandardDeviation(minList)
+    maxStandardDeviation = aF.calculateStandardDeviation(maxList)
 
     # calculating values of minThreshold and maxThreshold
     minThreshold = minMedian + 6 * minStandardDeviation
@@ -82,4 +71,29 @@ Returns:
 
 def calculateThresholdECG():
     threshold = float(0.9)
+    return threshold
+
+
+# 3rd
+# function calculating threshold for low-frequency potentials - LFP (7.3.1)
+"""
+Calculates threshold for low-frequency potentials (LFP) detection function.
+Called inside the ``detectLFP`` function. 
+Parameters:
+    ftList : list
+        List containing Fourier transforms values from each time block of a channel.
+Returns:
+    thresholds : float  
+        Floating point threshold value for channel on which detection function is called. 
+"""
+
+
+def calculateThresholdLFP(ftList):
+    # calculating median value of ftList
+    median = aF.calculateMedian(ftList)
+
+    # calculating threshold value
+    threshold = 0.75 + 0.25 * median
+
+    # returning threshold
     return threshold
