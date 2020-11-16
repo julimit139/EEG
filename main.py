@@ -11,12 +11,18 @@ print("Shape of input: ")
 print(inputData.shape)
 print(inputData.ndim)
 
-print("\n\n")
+
+
+
+
+"""print("\n\n")
 
 arr = np.array(inputData[165376:165632, 1:9])
 newArr = np.swapaxes(arr, 0, 1)
 print(newArr)
-print(newArr.shape)
+print(newArr.shape)"""
+
+
 """
 plt.figure(1);
 
@@ -24,7 +30,7 @@ plt.plot(newArr.T);
 
 plt.axis('tight');
 """
-
+"""
 plt.figure(2);
 
 plt.plot(newArr.T + 800*np.arange(7, -1, -1));
@@ -38,7 +44,7 @@ plt.yticks([]);
 plt.axis('tight');
 
 plt.show()
-
+"""
 
 
 
