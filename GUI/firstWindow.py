@@ -12,6 +12,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from GUI.secondWindow import Ui_secondWindow
 from GUI.thirdWindow import Ui_thirdWindow
+import extractData
+
 
 
 class Ui_firstWindow(object):
@@ -32,7 +34,12 @@ class Ui_firstWindow(object):
                                                'asc files (*.asc)')
         self.pathLineEdit.setText(fileName[0])
         if self.pathLineEdit.text() is not None:
+            self.uploadButton.setEnabled(True)
             self.nextButton.setEnabled(True)
+
+    # function extracting input data from input file while clicking nextButton
+    def uploadInputData(self):
+        extractData.extractInputData(self.pathLineEdit.text())
 
     def setupUi(self, firstWindow):
         firstWindow.setObjectName("firstWindow")
@@ -82,8 +89,23 @@ class Ui_firstWindow(object):
         # setting nextButton to disabled at the beginning
         self.nextButton.setEnabled(False)
 
-        # connecting clicking nextButton with function which opens second window (openSecondWindow)
+        # connecting clicking nextButton with function which opens second window
         self.nextButton.clicked.connect(self.openSecondWindow)
+
+        # connecting clicking nextButton with function which extracts input data
+        # self.nextButton.clicked.connect(self.extractInputData)
+
+        self.uploadButton = QtWidgets.QPushButton(self.centralwidget)
+        self.uploadButton.setGeometry(QtCore.QRect(140, 280, 511, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.uploadButton.setFont(font)
+        self.uploadButton.setObjectName("uploadButton")
+        # setting uploadButton to disabled at the beginning
+        self.uploadButton.setEnabled(False)
+
+        # connecting clicking uploadButton with function which extracts input data
+        self.uploadButton.clicked.connect(self.uploadInputData)
 
         firstWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(firstWindow)
@@ -104,6 +126,7 @@ class Ui_firstWindow(object):
         self.browseButton.setText(_translate("firstWindow", "Browse"))
         self.orderLabel.setText(_translate("firstWindow", "Please choose the file you want to be processed:"))
         self.nextButton.setText(_translate("firstWindow", "Go to next step"))
+        self.uploadButton.setText(_translate("firstWindow", "Upload file"))
 
 
 if __name__ == "__main__":
