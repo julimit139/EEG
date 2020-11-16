@@ -1,5 +1,7 @@
 # file containing functions extracting necessary data from input file
 
+import numpy as np
+
 def extractSamplingRate(path):
     samplingRate = ""
     file = open(path, "r")
@@ -11,5 +13,7 @@ def extractSamplingRate(path):
                     samplingRate += i
             print(samplingRate)
 
-def extraxtChannelValues(file):
-    pass
+
+def extractInputData(path):
+    inputData = np.loadtxt(path, skiprows=11)
+    return inputData
