@@ -174,3 +174,34 @@ def performECGDetection(detectionFunction, inputData):
     return isArtifact
 
 
+# 3rd
+# function detecting low-frequency potentials (Potencjały niskoczęstotliwościowe - 6.1.1)
+#       performed for one time block in all channels
+"""
+Detects low-frequency potentials        in data block given by ``dataBlock``.
+Parameters:
+    dataBlock : ndarray
+        Fragment of inputData of one time block duration and all channels (ECG and EEG).
+Returns:
+    maxCoefficient : float
+        Maximum value in list of coefficients in a time block.
+"""
+
+
+def detectLFP():
+    # array containing correlation coefficient values for a block time and all channels
+    coefficients = []
+
+    # array containing ECG values
+    channelECG = np.array(dataBlock[:, 0])
+
+    # calculating correlation coefficient values for all channels
+    for channelNumber in range(gV.eegChannelNumber):
+        channel = np.array(dataBlock[:, channelNumber + 1])
+        coefficient = stats.pearsonr(channelECG, channel)
+        coefficients.append(coefficient[0])
+
+    # maximum value in list of coefficients in a time block
+    maxCoefficient = max(coefficients)
+    return maxCoefficient
+
