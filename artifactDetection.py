@@ -1,8 +1,9 @@
 import numpy as np
 import math
+from scipy import stats
 import globalVariables as gV
 import thresholdCalculation as tC
-from scipy import stats
+import auxiliaryFunctions as aF
 
 
 # 0th
@@ -110,7 +111,7 @@ Returns:
 
 
 def detectECG(dataBlock):
-    # array containing correlation coefficient values for a block time and all channels
+    # list containing correlation coefficient values for a block time and all channels
     coefficients = []
 
     # array containing ECG values
@@ -178,30 +179,48 @@ def performECGDetection(detectionFunction, inputData):
 # function detecting low-frequency potentials (Potencjały niskoczęstotliwościowe - 6.1.1)
 #       performed for one time block in all channels
 """
-Detects low-frequency potentials        in data block given by ``dataBlock``.
+Detects low-frequency potentials (LFP) in channel given by ``channel``.
 Parameters:
-    dataBlock : ndarray
-        Fragment of inputData of one time block duration and all channels (ECG and EEG).
+    channel : ndarray
+        EEG channel - one of all EEG channels occurring in examination.
 Returns:
-    maxCoefficient : float
-        Maximum value in list of coefficients in a time block.
+    isArtifact : list 
+        List of boolean values informing about artifact occurrence in each block.    
 """
 
 
-def detectLFP():
-    # array containing correlation coefficient values for a block time and all channels
-    coefficients = []
+def detectLFP(channel):
+    # list containing Fourier transforms values for each time block
+    ftList = []
 
-    # array containing ECG values
-    channelECG = np.array(dataBlock[:, 0])
+    # signal is divided into many blocks where each block is 4s long
+    blockDuration = 4
+    # number of blocks (integer, fractional parts are ignored)
+    blockNumber = int(gV.examinationTime / blockDuration)
+    step = blockDuration * gV.samplingRate
 
-    # calculating correlation coefficient values for all channels
-    for channelNumber in range(gV.eegChannelNumber):
-        channel = np.array(dataBlock[:, channelNumber + 1])
-        coefficient = stats.pearsonr(channelECG, channel)
-        coefficients.append(coefficient[0])
+    # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
+    startPosition = 0
+    endPosition = startPosition + step
 
-    # maximum value in list of coefficients in a time block
-    maxCoefficient = max(coefficients)
-    return maxCoefficient
+    # finding Fourier transforms values in each block and filling ftList with them
+    for i in range(blockNumber):
+        ftValue = aF.calculateFourier(channel[startPosition:endPosition])
+        ftList.append(ftValue)
+        startPosition += step
+        endPosition += step
+
+    # getting threshold value from function which calculates it
+    threshold = tC.calculateThresholdLFP(ftList)
+
+    # creating and filling list with boolean values informing about artifact occurrence in each block
+    isArtifact = []
+    for ftValue in ftList:
+        if ftValue > threshold:
+            isArtifact.append(True)
+        else:
+            isArtifact.append(False)
+
+    # returning list informing about artifact occurrences
+    return isArtifact
 
