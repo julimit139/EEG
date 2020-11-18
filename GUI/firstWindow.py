@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from GUI.secondWindow import Ui_secondWindow
 from GUI.thirdWindow import Ui_thirdWindow
-import extractData
+import dataExtraction
 
 
 
@@ -31,15 +31,18 @@ class Ui_firstWindow(object):
     # after setting path it is enabled to go to the second window
     def browseFiles(self):
         fileName = QFileDialog.getOpenFileName(self.centralwidget, 'Open file', 'C:/Users/Julia/Desktop',
-                                               'asc files (*.asc)')
+                                               'ascii and text files (*.asc *.txt)')
         self.pathLineEdit.setText(fileName[0])
         if self.pathLineEdit.text() is not None:
             self.uploadButton.setEnabled(True)
             self.nextButton.setEnabled(True)
+        print(self.pathLineEdit.text())
 
     # function extracting input data from input file while clicking nextButton
     def uploadInputData(self):
-        extractData.extractInputData(self.pathLineEdit.text())
+        dataExtraction.extractInputData(self.pathLineEdit.text())
+        dataExtraction.extractSamplingRate(self.pathLineEdit.text())
+
 
     def setupUi(self, firstWindow):
         firstWindow.setObjectName("firstWindow")
