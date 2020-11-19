@@ -190,8 +190,8 @@ Returns:
 
 
 def detectLFP(channel):
-    # list containing Fourier transforms values for each time block
-    ftList = []
+    # list containing Fourier function values for each time block
+    fourierList = []
 
     # signal is divided into many blocks where each block is 4s long
     blockDuration = 4
@@ -203,20 +203,20 @@ def detectLFP(channel):
     startPosition = 0
     endPosition = startPosition + step
 
-    # finding Fourier transforms values in each block and filling ftList with them
+    # finding Fourier function values in each block and filling fourierList with them
     for i in range(blockNumber):
-        ftValue = aF.calculateFourier(channel[startPosition:endPosition])
-        ftList.append(ftValue)
+        fourierValue = aF.calculateFourierFunction(channel[startPosition:endPosition])
+        fourierList.append(fourierValue)
         startPosition += step
         endPosition += step
 
     # getting threshold value from function which calculates it
-    threshold = tC.calculateThresholdLFP(ftList)
+    threshold = tC.calculateThresholdLFP(fourierList)
 
     # creating and filling list with boolean values informing about artifact occurrence in each block
     isArtifact = []
-    for ftValue in ftList:
-        if ftValue > threshold:
+    for fourierValue in fourierList:
+        if fourierValue > threshold:
             isArtifact.append(True)
         else:
             isArtifact.append(False)
