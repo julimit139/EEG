@@ -7,19 +7,24 @@ import dataExtraction as eD
 import graphPlotting as gP
 
 
-# loading asc file into numpy array (ndarray) -> it'll load file given through GUI (later: should change '\' into '/')
+# loading asc file into numpy array (ndarray) -> it'll load file given through GUI
 inputData = np.loadtxt("C:/Users/Julia/Desktop/Data/test.asc", skiprows=11)
 # print(inputData)
 # print("Shape of input: ")
 # print(inputData.shape)
 # print(inputData.ndim)
 
-channel = np.array(inputData[165504:165632, 1])
+channel = np.array(inputData[165120:165632, 1])
 print(channel)
-print(aF.calculateSquareModulus(channel))
-# print(aF.calculateFourier(channel))
+print(aF.calculateFourierSquareModulus(channel))
 
 
+
+
+
+
+
+"""
 print(aD.performDetection(aD.detectEEP, inputData))
 
 channelNames = eD.extractChannelNames("C:/Users/Julia/Desktop/Data/test.asc")
@@ -28,6 +33,7 @@ arr = np.array(inputData[165120:165632, 1:20])
 channels = np.swapaxes(arr, 0, 1)
 print(channels)
 print(channels.shape)
+"""
 
 
 """
@@ -44,13 +50,15 @@ ax.set_yticks([-100, 0, 100])
 plt.show()
 """
 
+
+"""
 # creating results directory from its path
 resultsDirectory = gP.createPath()
 gP.createDirectory(resultsDirectory)
 
 # gP.plotBlock(channels, resultsDirectory)
 gP.plotAllBlocks(inputData, resultsDirectory)
-
+"""
 
 
 
