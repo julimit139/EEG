@@ -2,76 +2,51 @@ import numpy as np
 import math
 from scipy import stats
 import globalVariables as gV
-import thresholdCalculation as tC
 import auxiliaryFunctions as aF
+import thresholdCalculation as tC
 
 
-# 0th
-# function performing any detection function in all channels
-# performed for whole examination time and all channels
-"""
-Performs detection function given by ``detectionFunction`` on all channels given by ``inputData``.
-Parameters:
-    detectionFunction : function
-        Detection function which has to be performed on given data.
-    inputData : ndarray
-        All channels of EEG data.
-Returns:
-    output : list 
-        List of lists of boolean values informing about artifact occurrence in each block of every channel.    
-"""
-
-
-def performDetection(detectionFunction, inputData):
-    # creating empty list to contain information about artifact occurrence in each block of every channel
-    output = []
-
-    # performing detection function in every channel and appending it's result to output list
-    for channelNumber in range(gV.eegChannelNumber):
-        channel = np.array(inputData[:, channelNumber + 1])
-        output.append(detectionFunction(channel))
-
-    # returning list of lists
-    return output
-
-
-# 1st
 # function detecting External Electrostatic Potentials - EEP (Potencjały zewnętrzne elektrostatyczne - 6.3.1)
 # performed for whole examination time in one channel
 """
 Detects External Electrostatic Potentials (EEP) in channel given by ``channel``.
 Parameters:
     channel : ndarray
-        EEG channel - one of all EEG channels occurring in examination.
+        EEG channel - one of all EEG channels occurring in EEG examination data.
 Returns:
     isArtifact : list 
         List of boolean values informing about artifact occurrence in each block.    
+    blockNumber : int
+        Int value informing about number of blocks in a channel data.
 """
 
 
 def detectEEP(channel):
-    # list of tuples containing min and max values for each time block
+    # creating empty list for storing tuples containing minimum and maximum channel data values for each time block
     minMaxList = []
 
-    # signal is divided into many blocks where each block is 4s long
+    # channel data is divided into many blocks where each block is 4 s long
     blockDuration = 4
+
     # number of blocks (integer, fractional parts are ignored)
     blockNumber = int(gV.examinationTime / blockDuration)
+
+    # step with which a block of channel data will be extracted
     step = blockDuration * gV.samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
     startPosition = 0
     endPosition = startPosition + step
 
-    # finding  min and max signal values in each block and filling minMaxList with them
-    for i in range(blockNumber):
+    # finding minimum and maximum channel data values in each block and filling minMaxList with them
+    for block in range(blockNumber):
         xMin = min(channel[startPosition:endPosition])
         xMax = max(channel[startPosition:endPosition])
         minMaxList.append((xMin, xMax))
         startPosition += step
         endPosition += step
 
-    # getting thresholds values from function which calculates them
+    # getting thresholds values for processed channel from function which calculates them
     thresholds = tC.calculateThresholdsEEP(minMaxList)
     minThreshold = thresholds[0]
     maxThreshold = thresholds[1]
@@ -92,61 +67,106 @@ def detectEEP(channel):
             else:
                 isArtifact.append(False)
 
-    # returning list informing about artifact occurrences
-    return isArtifact
+    # returning list informing about artifact occurrences and int value informing about number of blocks
+    return isArtifact, blockNumber
 
 
-# 2nd
-# function detecting potentials derived from ECG (Potencjały związane z czynnością elektryczną serca (pochodzące od EKG) - 6.2.3)
-# performed for one time block in all channels
+# performed for whole examination time and all channels
+"""
+Performs detection function ``detectEEP`` on whole EEG examination data given by ``inputData``.
+Parameters:
+    inputData : ndarray
+        EEG examination data (all channels).
+Returns:
+    isArtifact : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
+"""
+
+
+def performEEPDetection(inputData):
+    # creating empty list for storing information about artifact occurrence in each block of EEG data
+    isArtifactOutput = []
+
+    # performing EEP detection function in every channel and changing isArtifactOutput content respectively
+    for channelNumber in range(gV.eegChannelNumber):
+        channel = np.array(inputData[:, channelNumber + 1])
+        isArtifact = detectEEP(channel)[0]
+        blockNumber = detectEEP(channel)[1]
+
+        # filling isArtifactOutput with isArtifact content when iterating outer for loop for the first time
+        if channelNumber == 0:
+            isArtifactOutput = isArtifact
+
+        # respectively changing or leaving as is the isArtifactOutput content when iterating outer for loop for second
+        # and more times
+        if channelNumber != 0:
+            for block in range(blockNumber):
+                if isArtifact[block]:
+                    if isArtifactOutput[block] != isArtifact[block]:
+                        isArtifactOutput[block] = isArtifact[block]
+
+    # returning list informing about artifact occurrence in each block
+    return isArtifactOutput
+
+
+# **********************************************************************************************************************
+
+
+# function detecting potentials derived from ECG (Potencjały związane z czynnością elektryczną serca - 6.2.3)
+# performed for one block in all channels
 """
 Detects potentials derived from ECG in data block given by ``dataBlock``.
 Parameters:
     dataBlock : ndarray
-        Fragment of inputData of one time block duration and all channels (ECG and EEG).
+        Part of EEG examination data of one time block and all examination data channels (ECG and EEG).
 Returns:
     maxCoefficient : float
-        Maximum value in list of coefficients in a time block.
+        Maximum value in list of coefficients in a block.
 """
 
 
 def detectECG(dataBlock):
-    # list containing correlation coefficient values for a block time and all channels
+    # creating empty list fot storing correlation coefficient values for a block time and all channels
     coefficients = []
 
-    # array containing ECG values
+    # ndarray containing ECG signal values
     channelECG = np.array(dataBlock[:, 0])
 
-    # calculating correlation coefficient values for all channels
+    # calculating value of correlation coefficient of the signal in channel with ECG signal for all channels
     for channelNumber in range(gV.eegChannelNumber):
         channel = np.array(dataBlock[:, channelNumber + 1])
         coefficient = stats.pearsonr(channelECG, channel)
         coefficients.append(coefficient[0])
 
-    # maximum value in list of coefficients in a time block
+    # maximum value in list of correlation coefficients in a time block
     maxCoefficient = max(coefficients)
+
+    # returning maximum correlation coefficient
     return maxCoefficient
 
 
-# function performing detection function
 """
-Performs detection function given by ``detectionFunction`` on whole examination data given by ``inputData``.
+Performs detection function ``detectECG`` on whole EEG examination data given by ``inputData``.
 Parameters:
-    detectionFunction : function
-        Detection function which has to be performed on given data.
     inputData : ndarray
-        All channels of EEG data.
+        EEG examination data (all channels).
 Returns:
-    output : list 
-        List of boolean values informing about artifact occurrence in each time block.    
+    isArtifact : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
 """
 
 
-def performECGDetection(detectionFunction, inputData):
-    # signal is divided into many blocks where each block is 4s long
+def performECGDetection(inputData):
+    # creating empty list for storing information about artifact occurrence in each block of EEG data
+    isArtifactOutput = []
+
+    # input data is divided into many blocks where each block is 4s long
     blockDuration = 4
+
     # number of blocks (integer, fractional parts are ignored)
     blockNumber = int(gV.examinationTime / blockDuration)
+
+    # step with which a block of input data will be extracted
     step = blockDuration * gV.samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
@@ -156,47 +176,51 @@ def performECGDetection(detectionFunction, inputData):
     # getting threshold value from function which calculates it
     threshold = tC.calculateThresholdECG()
 
-    # creating list to contain boolean values informing about artifact occurrence in each block
-    isArtifact = []
-
     # finding correlation coefficient maximum value in each block and all channels
     # and checking if an artifact occurs in a block
-    for i in range(blockNumber):
+    for block in range(blockNumber):
         dataBlock = np.array(inputData[startPosition:endPosition, :])
         maxCoefficient = detectECG(dataBlock)
         if maxCoefficient > threshold:
-            isArtifact.append(True)
+            isArtifactOutput.append(True)
         else:
-            isArtifact.append(False)
+            isArtifactOutput.append(False)
         startPosition += step
         endPosition += step
 
-    # returning list informing about artifact occurrences
-    return isArtifact
+    # returning list informing about artifact occurrence in each block
+    return isArtifactOutput
 
 
-# 3rd
+# *********************************************************************************************************************
+
+
 # function detecting low-frequency potentials (Potencjały niskoczęstotliwościowe - 6.1.1)
-#       performed for one time block in all channels
+# performed for whole examination time in one channel
 """
 Detects low-frequency potentials (LFP) in channel given by ``channel``.
 Parameters:
     channel : ndarray
-        EEG channel - one of all EEG channels occurring in examination.
+        EEG channel - one of all EEG channels occurring in EEG examination data.
 Returns:
     isArtifact : list 
         List of boolean values informing about artifact occurrence in each block.    
+    blockNumber : int
+        Int value informing about number of blocks in a channel data.
 """
 
 
 def detectLFP(channel):
-    # list containing Fourier function values for each time block
+    # creating empty list for storing Fourier function values for each time block
     fourierList = []
 
-    # signal is divided into many blocks where each block is 4s long
+    # channel data is divided into many blocks where each block is 4 s long
     blockDuration = 4
+
     # number of blocks (integer, fractional parts are ignored)
     blockNumber = int(gV.examinationTime / blockDuration)
+
+    # step with which a block of channel data will be extracted
     step = blockDuration * gV.samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
@@ -204,7 +228,7 @@ def detectLFP(channel):
     endPosition = startPosition + step
 
     # finding Fourier function values in each block and filling fourierList with them
-    for i in range(blockNumber):
+    for block in range(blockNumber):
         fourierValue = aF.calculateFourierFunction(channel[startPosition:endPosition])
         fourierList.append(fourierValue)
         startPosition += step
@@ -221,6 +245,43 @@ def detectLFP(channel):
         else:
             isArtifact.append(False)
 
-    # returning list informing about artifact occurrences
-    return isArtifact
+    # returning list informing about artifact occurrences and int value informing about number of blocks
+    return isArtifact, blockNumber
 
+
+# performed for whole examination time and all channels
+"""
+Performs detection function ``detectLFP`` on whole EEG examination data given by ``inputData``.
+Parameters:
+    inputData : ndarray
+        EEG examination data (all channels).
+Returns:
+    isArtifact : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
+"""
+
+
+def performLFPDetection(inputData):
+    # creating empty list for storing information about artifact occurrence in each block of EEG data
+    isArtifactOutput = []
+
+    # performing EEP detection function in every channel and changing isArtifactOutput content respectively
+    for channelNumber in range(gV.eegChannelNumber):
+        channel = np.array(inputData[:, channelNumber + 1])
+        isArtifact = detectLFP(channel)[0]
+        blockNumber = detectLFP(channel)[1]
+
+        # filling isArtifactOutput with isArtifact content when iterating outer for loop for the first time
+        if channelNumber == 0:
+            isArtifactOutput = isArtifact
+
+        # respectively changing or leaving as is the isArtifactOutput content when iterating outer for loop for second
+        # and more times
+        if channelNumber != 0:
+            for block in range(blockNumber):
+                if isArtifact[block]:
+                    if isArtifactOutput[block] != isArtifact[block]:
+                        isArtifactOutput[block] = isArtifact[block]
+
+    # returning list informing about artifact occurrence in each block
+    return isArtifactOutput
