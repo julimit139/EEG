@@ -1,8 +1,8 @@
-import numpy as np
 import math
+import numpy as np
 from scipy import stats
-import globalVariables as gV
 import auxiliaryFunctions as aF
+import globalVariables as gV
 import thresholdCalculation as tC
 
 
@@ -211,7 +211,7 @@ Returns:
 
 
 def detectLFP(channel):
-    # creating empty list for storing Fourier function values for each time block
+    # creating empty list for storing Fourier based function values for each time block
     fourierList = []
 
     # channel data is divided into many blocks where each block is 4 s long
@@ -227,7 +227,7 @@ def detectLFP(channel):
     startPosition = 0
     endPosition = startPosition + step
 
-    # finding Fourier function values in each block and filling fourierList with them
+    # finding Fourier-based function values in each block and filling fourierList with them
     for block in range(blockNumber):
         fourierValue = aF.calculateFourierFunction(channel[startPosition:endPosition])
         fourierList.append(fourierValue)
