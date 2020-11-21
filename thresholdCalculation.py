@@ -1,13 +1,10 @@
-import numpy as np
 import math
 import auxiliaryFunctions as aF
 
 
-# 1st
-# function calculating thresholds for External Electrostatic Potentials - EEP (7.5.1)
 """
 Calculates thresholds for External Electrostatic Potentials (EEP) detection function.
-Called inside the ``detectEEP`` function. 
+Called inside the ``artifactDetection/detectEEP`` function. 
 Parameters:
     minMaxList : list
         List of tuples containing minimum and maximum signal values from each time block of a channel.
@@ -56,11 +53,9 @@ def calculateThresholdsEEP(minMaxList):
     return thresholds
 
 
-# 2nd
-# function calculating threshold for potentials derived from ECG (7.4.3)
 """
-Calculates threshold for ECG detection function.
-Called inside the ``performECGDetection`` function. 
+Calculates threshold for potentials derived from ECG detection function.
+Called inside the ``artifactDetection/performECGDetection`` function.
 Parameters:
     None
 Returns:
@@ -74,23 +69,21 @@ def calculateThresholdECG():
     return threshold
 
 
-# 3rd
-# function calculating threshold for low-frequency potentials - LFP (7.3.1)
 """
 Calculates threshold for low-frequency potentials (LFP) detection function.
-Called inside the ``detectLFP`` function. 
+Called inside the ``artifactDetection/detectLFP`` function. 
 Parameters:
-    ftList : list
-        List containing Fourier transforms values from each time block of a channel.
+    fourierList : list
+        List containing Fourier-based function values from each time block of a channel.
 Returns:
-    thresholds : float  
+    threshold : float  
         Floating point threshold value for channel on which detection function is called. 
 """
 
 
-def calculateThresholdLFP(ftList):
-    # calculating median value of ftList
-    median = aF.calculateMedian(ftList)
+def calculateThresholdLFP(fourierList):
+    # calculating median value of fourierList
+    median = aF.calculateMedian(fourierList)
 
     # calculating threshold value
     threshold = 0.75 + 0.25 * median
