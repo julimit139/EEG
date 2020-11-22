@@ -6,19 +6,12 @@ import artifactDetection as aD
 import globalVariables as gV
 
 
+
 inputData = np.loadtxt("C:/Users/Julia/Desktop/Data/test.asc", skiprows=11)
-channel = np.array(inputData[:, 1])
-
-for channelNumber in range(gV.eegChannelNumber):
-    channel = np.array(inputData[:, channelNumber+1])
-    result = aD.detectLFP(channel)
-    print("Channel number: " + str(channelNumber+1))
-    print(len(result))
-    try:
-        print(result.index(True))
-    except ValueError:
-        print("True is not in list")
-
+data = np.array(inputData[165120:165632, 1])
+res3 = aF.calculateFourierFunction(data)
+print(res3)
+print(type(res3))
 
 
 """
