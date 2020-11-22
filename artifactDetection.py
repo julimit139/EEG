@@ -84,6 +84,9 @@ Returns:
 
 
 def performEEPDetection(inputData):
+    message = "An artifact reflected by the external electrostatic potential occurrence has been detected in this " \
+              "block"
+
     # creating empty list for storing information about artifact occurrence in each block of EEG data
     isArtifactOutput = []
 
@@ -106,7 +109,7 @@ def performEEPDetection(inputData):
                         isArtifactOutput[block] = isArtifact[block]
 
     # returning list informing about artifact occurrence in each block
-    return isArtifactOutput
+    return isArtifactOutput, message
 
 
 # **********************************************************************************************************************
