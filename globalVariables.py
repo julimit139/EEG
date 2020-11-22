@@ -13,3 +13,5 @@ ekgChannelNumber = 1                    # number of EKG channels in examination 
 
 channelNames = ['Fp1-RF', 'Fp2-RF', 'F7-RF', 'F3-RF', 'Fz-RF', 'F4-RF', 'F8-RF', 'T3-RF', 'C3-RF', 'Cz-RF', 'C4-RF',
                 'T4-RF', 'T5-RF', 'P3-RF', 'Pz-RF', 'P4-RF', 'T6-RF', 'O1-RF', 'O2-RF']
+
+artifactBackgroundColor = 'lightcoral'  # name of colour set to axes when an artifact is detected in a block
