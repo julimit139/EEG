@@ -78,12 +78,15 @@ Parameters:
     inputData : ndarray
         EEG examination data (all channels).
 Returns:
-    isArtifact : list 
-        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
+    isArtifactOutput : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.   
+    message : string
+        Short text information about type of the artifact and it's occurrence in a block.
 """
 
 
 def performEEPDetection(inputData):
+    # creating short information about type of the artifact and it's occurrence in a block
     message = "An artifact reflected by the external electrostatic potential occurrence has been detected in this " \
               "block"
 
@@ -108,7 +111,7 @@ def performEEPDetection(inputData):
                     if isArtifactOutput[block] != isArtifact[block]:
                         isArtifactOutput[block] = isArtifact[block]
 
-    # returning list informing about artifact occurrence in each block
+    # returning list informing about artifact occurrence in each block and message
     return isArtifactOutput, message
 
 
@@ -154,12 +157,17 @@ Parameters:
     inputData : ndarray
         EEG examination data (all channels).
 Returns:
-    isArtifact : list 
-        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
+    isArtifactOutput : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.
+    message : string
+        Short text information about type of the artifact and it's occurrence in a block.    
 """
 
 
 def performECGDetection(inputData):
+    # creating short information about type of the artifact and it's occurrence in a block
+    message = "An artifact derived from ECG has been detected in this block"
+
     # creating empty list for storing information about artifact occurrence in each block of EEG data
     isArtifactOutput = []
 
@@ -191,8 +199,8 @@ def performECGDetection(inputData):
         startPosition += step
         endPosition += step
 
-    # returning list informing about artifact occurrence in each block
-    return isArtifactOutput
+    # returning list informing about artifact occurrence in each block and message
+    return isArtifactOutput, message
 
 
 # *********************************************************************************************************************
@@ -259,12 +267,17 @@ Parameters:
     inputData : ndarray
         EEG examination data (all channels).
 Returns:
-    isArtifact : list 
-        List of boolean values informing about artifact occurrence in each block of EEG examination data.    
+    isArtifactOutput : list 
+        List of boolean values informing about artifact occurrence in each block of EEG examination data.
+     message : string
+        Short text information about type of the artifact and it's occurrence in a block.    
 """
 
 
 def performLFPDetection(inputData):
+    # creating short information about type of the artifact and it's occurrence in a block
+    message = "An artifact reflected by the low-frequency potential occurrence has been detected in this block"
+
     # creating empty list for storing information about artifact occurrence in each block of EEG data
     isArtifactOutput = []
 
@@ -287,4 +300,4 @@ def performLFPDetection(inputData):
                         isArtifactOutput[block] = isArtifact[block]
 
     # returning list informing about artifact occurrence in each block
-    return isArtifactOutput
+    return isArtifactOutput, message
