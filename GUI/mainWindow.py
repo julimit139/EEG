@@ -132,7 +132,8 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1442, 1019)
+        # MainWindow.resize(1442, 1019)
+        MainWindow.setFixedSize(1442, 1019)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
