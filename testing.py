@@ -4,24 +4,23 @@ import scipy.fft as fft
 import auxiliaryFunctions as aF
 import artifactDetection as aD
 import globalVariables as gV
+import dataExtraction as dE
+
+pathAsc = "C:/Users/Julia/Desktop/Data/test.asc"
+pathTxt = "C:/Users/Julia/Desktop/Data/PD143.txt"
+
+# dE.readInputFile(path)
+
+"""samplingRate = dE.extractExaminationTime(pathAsc)
+print(samplingRate)
+print(type(samplingRate))
+
+samplingRate = dE.extractSamplingRate(pathTxt)
+print(samplingRate)
+print(type(samplingRate))"""
 
 
 
-inputData = np.loadtxt("C:/Users/Julia/Desktop/Data/test.asc", skiprows=11)
-data = np.array(inputData[165120:165632, 1])
-res3 = aF.calculateFourierFunction(data)
-print(res3)
-print(type(res3))
 
 
-"""
-fourierTransform = fft(channel)
 
-absFourierTransform = np.abs(fourierTransform)
-
-powerSpectrum = np.square(absFourierTransform)
-
-frequency = np.linspace(0, gV.samplingRate/2, len(powerSpectrum))
-
-print(sum(powerSpectrum[0:5]))
-"""
