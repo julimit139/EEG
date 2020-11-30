@@ -46,19 +46,20 @@ def plotBlock(channels, startPosition, endPosition, step, isArtifactValue, messa
         for axis in ['top', 'bottom', 'left', 'right']:
             ax.spines[axis].set_linewidth(4.0)
 
-        plt.figtext(0.47, 0.96, message, fontsize=14, color='red', ha='center')
+    plt.figtext(0.47, 0.96, message, fontsize=14, color='red', ha='center')
 
-    ax.plot(x, y.T + 800 * np.arange(18, -1, -1))
-    ax.plot(np.zeros((512, 19)) + 800 * np.arange(18, -1, -1), '--', color='gray')
+    ax.plot(x, y.T + 600 * np.arange(18, -1, -1))
+    ax.plot(np.zeros((512, 19)) + 600 * np.arange(18, -1, -1), '--', color='gray')
 
     ax.set_xticks([0, int(step / 4), int(step / 2), int(step * 3 / 4), step])
-    ax.set_xticklabels([int(startPosition), int(startPosition + step / 4), int(startPosition + step / 2),
-                        int(startPosition + step * 3 / 4), int(endPosition)])
+    ax.set_xticklabels([int(startPosition/128), int((startPosition + step / 4)/128), int((startPosition + step /
+                                                                                          2)/128),
+                int((startPosition + step * 3 / 4)/128), int(endPosition/128)])
 
     ax.set_yticks([])
 
     ax.legend(gV.channelNames, loc='upper right', bbox_to_anchor=(1.08, 1), borderaxespad=0, labelspacing=1.8, \
-             title='Channels')
+                title='Channels')
 
     # showing plot in maximized window
     """fig.canvas.manager.window.showMaximized()"""
@@ -66,14 +67,9 @@ def plotBlock(channels, startPosition, endPosition, step, isArtifactValue, messa
     # saving plot into directory
     fig.savefig(directory + '/plot' + block + '.png')
 
-
     plt.rcParams.update({'figure.max_open_warning': 0})
 
-    plt.cla()
-
-    # painting red rectangle about axes
-    """rect = patches.Rectangle((-10, -20), 5000, 800, linewidth=3, edgecolor='r', facecolor='none')
-    ax.add_patch(rect)"""
+    # plt.cla()
 
     # plt.show()
 
@@ -81,8 +77,10 @@ def plotBlock(channels, startPosition, endPosition, step, isArtifactValue, messa
 # function plotting all blocks of data
 # needs improvement, takes too much memory and causes memory error when get range(160)
 def plotAllBlocks(inputData, isArtifact, message):
-    directory = createPath()
-    createDirectory(directory)
+    # directory = createPath()
+    # createDirectory(directory)
+
+    directory = "../Temporal/Results/"
 
     blockNumber = len(isArtifact)
     step = int(gV.examinationTime * gV.samplingRate / blockNumber)
@@ -95,7 +93,8 @@ def plotAllBlocks(inputData, isArtifact, message):
         channels = np.swapaxes(arr, 0, 1)
         isArtifactValue = isArtifact[i]
 
-        plotBlock(channels, startPosition, endPosition, step, isArtifactValue, message, directory)
+        if isArtifactValue:
+            plotBlock(channels, startPosition, endPosition, step, isArtifactValue, message, directory)
 
         startPosition += step
         endPosition += step
