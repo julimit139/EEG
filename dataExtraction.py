@@ -2,25 +2,63 @@
 import numpy as np
 
 
+def readInputFile(path):
+    if path.endswith("asc"):
+        inputFile = open(path, "r")
+    elif path.endswith("txt"):
+        inputFile = open(path, "r", encoding="utf-16")
+
+    content = inputFile.read()
+    inputFile.close()
+
+    txtFile = open("Temporal/inputFile.txt", "w")
+    txtFile.write(content)
+    txtFile.close()
+
+
 # function extracting sampling rate value from input file
 def extractSamplingRate(path):
     samplingRate = ""
-    file = open(path, "r")
     if path.endswith("asc"):
+        file = open(path, "r")
+    elif path.endswith("txt"):
+        file = open(path, "r", encoding="utf-16")
+
+    for i in range(10):
+        line = file.readline()
+        if "sampling rate" in line.lower():
+            for char in line:
+                if char.isdigit():
+                    samplingRate += char
+                elif char == ".":
+                    break
+
+    return int(samplingRate)
+
+
+def extractExaminationTime(path):
+    examinationTime = ""
+    if path.endswith("asc"):
+        file = open(path, "r")
         for i in range(10):
             line = file.readline()
-            if "Sampling rate" in line:
-                for i in line:
-                    if i.isdigit():
-                        samplingRate += i
+            if "seconds" in line.lower():
+                for char in line:
+                    if char.isdigit():
+                        examinationTime += char
+
     elif path.endswith("txt"):
-        for i in range(30):
+        file = open(path, "r", encoding="utf-16")
+        for i in range(10):
             line = file.readline()
-            if line.find("Sampling Rate") != -1:
-                if i.isdigit():
-                    samplingRate += 1
-    print(samplingRate)
-    return samplingRate
+            if "original file start/end time" in line.lower():
+                for char in line:
+                    if char.isdigit() or char == "/" or char == ":":
+                        examinationTime += char
+                    elif char == ".":
+                        break
+
+    return int(examinationTime)
 
 
 # function extracting all channels value from input file (asc of txt)
