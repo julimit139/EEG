@@ -90,9 +90,17 @@ def calculateFourierFunction(data):
     # calculating difference of sums of powerSpectrum elements with extracted indexes
     denominator = sum(powerSpectrum[denominatorLimitFirst]) - sum(powerSpectrum[denominatorLimitSecond])
 
-    # calculating Fourier-based function value
     fourierFunction = nominator / denominator
+
+    # calculating Fourier-based function value
+    """if denominator != 0:
+        fourierFunction = nominator / denominator
+    else:
+        fourierFunction = nominator"""
 
     # returning Fourier-based function value
     return fourierFunction
 
+
+def sortList(item):
+    return len(item)
