@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import QFileDialog, QSizePolicy
 import artifactDetection as aD
 import dataExtraction as dE
 import graphPlotting as gP
+import auxiliaryFunctions as aF
+
 
 
 class Ui_MainWindow(object):
@@ -24,6 +26,7 @@ class Ui_MainWindow(object):
     blockNumber = 0
     message = ""
     fileList = []
+    index = 0
     dirIterator = None
 
     def browseFiles(self):
@@ -72,6 +75,8 @@ class Ui_MainWindow(object):
             self.plotLabel.setPixmap(pixmap)"""
 
         self.nextButton.setEnabled(True)
+        self.previousButton.setEnabled(True)
+
         dir = "../Temporal/Results/"
 
         for file in os.listdir(dir):
@@ -79,10 +84,11 @@ class Ui_MainWindow(object):
             if os.path.isfile(fpath):
                 self.fileList.append(fpath)
 
-        self.fileList.sort()
-        self.dirIterator = iter(self.fileList)
+        # self.fileList.sort()
+        self.fileList.sort(key=aF.sortList)
+        # self.dirIterator = iter(self.fileList)
 
-        pixmap = QtGui.QPixmap(self.fileList[0])
+        pixmap = QtGui.QPixmap(self.fileList[self.index])
         self.plotLabel.setScaledContents(True)
         self.plotLabel.setPixmap(pixmap)
 
@@ -91,7 +97,10 @@ class Ui_MainWindow(object):
     def nextPlot(self):
         if self.fileList:
             try:
-                filename = next(self.dirIterator)
+                # filename = next(self.dirIterator)
+
+                self.index += 1
+                filename = self.fileList[self.index]
                 pixmap = QtGui.QPixmap(filename)
                 if pixmap.isNull():
                     self.fileList.remove(filename)
@@ -101,7 +110,8 @@ class Ui_MainWindow(object):
                     self.plotLabel.setPixmap(pixmap)
             except:
                 # the iterator has finished, restart it
-                self.dirIterator = iter(self.fileList)
+                # self.dirIterator = iter(self.fileList)
+                self.index = 0
                 self.nextPlot()
         else:
             # no file list found, load an image
@@ -111,20 +121,24 @@ class Ui_MainWindow(object):
     def previousPlot(self):
         if self.fileList:
             try:
-                filename = next(self.dirIterator)
+                # filename = next(self.dirIterator)
+
+                self.index -= 1
+                filename = self.fileList[self.index]
                 pixmap = QtGui.QPixmap(filename)
                 if pixmap.isNull():
                     # the file is not a valid image, remove it from the list
                     # and try to load the next one
                     self.fileList.remove(filename)
-                    self.nextPlot()
+                    self.previousPlot()
                 else:
                     self.plotLabel.setScaledContents(True)
                     self.plotLabel.setPixmap(pixmap)
             except:
                 # the iterator has finished, restart it
-                self.dirIterator = iter(self.fileList)
-                self.nextPlot()
+                # self.dirIterator = iter(self.fileList)
+                self.index = 0
+                self.previousPlot()
         else:
             # no file list found, load an image
             self.showPlot()
@@ -216,7 +230,8 @@ class Ui_MainWindow(object):
         self.previousButton.setObjectName("previousButton")
         self.previousButton.setEnabled(False)
 
-
+        # connecting clicking previousButton with function which shows previous plot (previousPlot)
+        self.previousButton.clicked.connect(self.previousPlot)
 
 
 
