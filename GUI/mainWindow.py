@@ -11,41 +11,51 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QWidget, QGridLayout, QDesktopWidget
 
+import getpass
+
 import artifactDetection as aD
 import dataExtraction as dE
 import graphPlotting as gP
 import auxiliaryFunctions as aF
 
+from EEGData import *
+
+
 
 
 class Ui_MainWindow(object):
+
     inputData = []
-    detectionMethod = ""
+    detectionMethod = "performEEPDetection"
     isArtifact = []
     blockNumber = 0
     message = ""
     fileList = []
     index = 0
-    # dirIterator = None
 
+    examinationTime = ""
+    samplingRate = ""
+    channelsNames = []
+    eegChannelNumber = 0
+    ecgChannelNumber = 0
 
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topleft())
 
 
     def browseFiles(self):
-        fileName = QFileDialog.getOpenFileName(self.centralwidget, "Open file", "C:/Users/Julia/Desktop",
-                                               "ascii (*.asc)")
+        fileName = QFileDialog.getOpenFileName(self.centralwidget, "Open file", "C:/Users/" + getpass.getuser() +
+            "/Desktop", "ascii or txt files (*.asc *.txt)")
         self.pathLineEdit.setText(fileName[0])
-        if self.pathLineEdit.text() is not None:
+        path = self.pathLineEdit.text()
+        if path is not None:
+            global EEG
+            EEG = EEGData(path)
             self.uploadButton.setEnabled(True)
             self.browseButton.setEnabled(False)
 
     def uploadFile(self):
-        self.inputData = dE.extractInputData(self.pathLineEdit.text())
+        # self.inputData = dE.extractData(self.pathLineEdit.text())[0]
+        self.inputData = EEG.getInputData()
+
         self.methodComboBox.setEnabled(True)
         self.performButton.setEnabled(True)
         self.uploadButton.setEnabled(False)
@@ -61,6 +71,7 @@ class Ui_MainWindow(object):
         self.methodComboBox.setEnabled(False)
 
     def performDetection(self):
+        self.methodComboBox.setEnabled(False)
         if self.detectionMethod == "performEEPDetection":
             result = aD.performEEPDetection(self.inputData)
         elif self.detectionMethod == "performECGDetection":
@@ -88,6 +99,7 @@ class Ui_MainWindow(object):
         self.showButton.setEnabled(False)
         self.nextButton.setEnabled(True)
         self.previousButton.setEnabled(True)
+        self.againButton.setEnabled(True)
 
         dir = "../Temporal/Results/"
 
@@ -156,6 +168,33 @@ class Ui_MainWindow(object):
             self.showPlot()
 
 
+    def performAgain(self):
+        self.inputData = []
+        self.detectionMethod = "performEEPDetection"
+        self.isArtifact = []
+        self.blockNumber = 0
+        self.message = ""
+        self.fileList = []
+        self.index = 0
+        self.deleteTemporalFiles()
+        self.browseButton.setEnabled(True)
+        self.againButton.setEnabled(False)
+        self.nextButton.setEnabled(False)
+        self.previousButton.setEnabled(False)
+        self.pathLineEdit.setText("")
+        self.plotLabel.clear()
+
+
+    def deleteTemporalFiles(self):
+        folder = "../Temporal/Results"
+        for filename in os.listdir(folder):
+            fpath = os.path.join(folder, filename)
+            try:
+                if os.path.isfile(fpath) or os.path.islink(fpath):
+                    os.unlink(fpath)
+            except Exception as e:
+                print("Failed to delete %s. Reason: %s" % (fpath, e))
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -216,6 +255,7 @@ class Ui_MainWindow(object):
         self.methodComboBox.addItem("")
         self.methodComboBox.addItem("")
         self.methodComboBox.addItem("")
+        self.methodComboBox.setCurrentIndex(0)
         self.methodComboBox.setEnabled(False)
 
         self.methodComboBox.activated.connect(self.chooseDetectionMethod)
@@ -275,7 +315,7 @@ class Ui_MainWindow(object):
 
 
         self.showButton = QtWidgets.QPushButton(MainWindow)
-        self.showButton.setGeometry(QtCore.QRect(10, 70, 1421, 41))
+        self.showButton.setGeometry(QtCore.QRect(10, 70, 710, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.showButton.setFont(font)
@@ -287,14 +327,16 @@ class Ui_MainWindow(object):
 
 
 
-        self.anotherButton = QtWidgets.QPushButton(MainWindow)
-        self.anotherButton.setGeometry(QtCore.QRect(1350, 942, 81, 61))
+        self.againButton = QtWidgets.QPushButton(MainWindow)
+        self.againButton.setGeometry(QtCore.QRect(729, 70, 701, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.anotherButton.setFont(font)
-        self.anotherButton.setObjectName("anotherButton")
-        self.anotherButton.setEnabled(False)
+        self.againButton.setFont(font)
+        self.againButton.setObjectName("againButton")
+        self.againButton.setEnabled(False)
 
+        # connecting clicking againButton with function which performs detection again (performAgain)
+        self.againButton.clicked.connect(self.performAgain)
 
 
 
@@ -322,19 +364,12 @@ class Ui_MainWindow(object):
         self.previousButton.setText(_translate("MainWindow", "Previous"))
         self.nextButton.setText(_translate("MainWindow", "Next"))
         self.showButton.setText(_translate("MainWindow", "Show plots containing artifacts"))
-        self.anotherButton.setText(_translate("MainWindow", "Another"))
+        self.againButton.setText(_translate("MainWindow", "Perform detection again"))
 
 
     def __del__(self):
         print("deleting")
-        folder = "../Temporal/Results"
-        for filename in os.listdir(folder):
-            fpath = os.path.join(folder, filename)
-            try:
-                if os.path.isfile(fpath) or os.path.islink(fpath):
-                    os.unlink(fpath)
-            except Exception as e:
-                print("Failed to delete %s. Reason: %s" % (fpath, e))
+        self.deleteTemporalFiles()
 
 
 
