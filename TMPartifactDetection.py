@@ -141,10 +141,14 @@ def detectECG(dataBlock, eegChannelNumber):
     for channelNumber in range(eegChannelNumber):
         channel = np.array(dataBlock[:, channelNumber + 1])
         coefficient = stats.pearsonr(channelECG, channel)
-        coefficients.append(coefficient[0])
+        if coefficient[0] is not np.NaN:
+            coefficients.append(coefficient[0])
 
     # maximum value in list of correlation coefficients in a time block
-    maxCoefficient = max(coefficients)
+    if len(coefficients) > 0:
+        maxCoefficient = max(coefficients)
+    else:
+        maxCoefficient = 0
 
     # returning maximum correlation coefficient
     return maxCoefficient
