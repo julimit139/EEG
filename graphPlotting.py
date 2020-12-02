@@ -58,8 +58,8 @@ def plotBlock(channels, startPosition, endPosition, step, isArtifactValue, messa
 
     ax.set_yticks([])
 
-    ax.legend(gV.channelNames, loc='upper right', bbox_to_anchor=(1.08, 1), borderaxespad=0, labelspacing=1.8, \
-                title='Channels')
+    ax.legend(gV.channelsNames, loc='upper right', bbox_to_anchor=(1.08, 1), borderaxespad=0, labelspacing=1.8, \
+              title='Channels')
 
     # showing plot in maximized window
     """fig.canvas.manager.window.showMaximized()"""
@@ -77,10 +77,8 @@ def plotBlock(channels, startPosition, endPosition, step, isArtifactValue, messa
 # function plotting all blocks of data
 # needs improvement, takes too much memory and causes memory error when get range(160)
 def plotAllBlocks(inputData, isArtifact, message):
-    # directory = createPath()
-    # createDirectory(directory)
-
-    directory = "../Temporal/Results/"
+    directory = createPath()
+    createDirectory(directory)
 
     blockNumber = len(isArtifact)
     step = int(gV.examinationTime * gV.samplingRate / blockNumber)
