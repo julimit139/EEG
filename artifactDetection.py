@@ -99,6 +99,8 @@ def performEEPDetection(inputData):
         isArtifact = detectEEP(channel)[0]
         blockNumber = detectEEP(channel)[1]
 
+        print(isArtifact.count(True))
+
         # filling isArtifactOutput with isArtifact content when iterating outer for loop for the first time
         if channelNumber == 0:
             isArtifactOutput = isArtifact
