@@ -201,9 +201,9 @@ def extractDataTxt(path):
     inputData = []
     examinationTime = ""
     samplingRate = ""
-    channelsNames = ["C3", "C4", "Cz", "F3", "F4", "F7", "F8", "Fz", "Fp1", "Fp2", "Fps", "A1/M1", "A2/M2", "O1",
+    channelsNames = ["C3", "C4", "Cz", "F3", "F4", "F7", "F8", "Fz", "Fp1", "Fp2", "O1",
                          "O2", "Oz", "P3", "P4", "T5", "T6", "Pz", "T3", "T4"]
-    eegChannelNumber = 23
+    eegChannelNumber = 20
     ecgChannelNumber = 0
 
     file = open(path, "r", encoding="utf-16")
@@ -232,3 +232,13 @@ def extractDataTxt(path):
 
     return inputData, int(examinationTime), int(samplingRate), channelsNames, eegChannelNumber, ecgChannelNumber
 
+
+def calculateExaminationTime(inputData, samplingRate):
+    examinationTime = int(len(inputData) / samplingRate)
+    return examinationTime
+
+
+inputData = np.zeros(shape=(637383, 20))
+samplingRate = 512
+print(calculateExaminationTime(inputData, samplingRate))
+print(len(inputData))
