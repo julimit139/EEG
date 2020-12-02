@@ -11,35 +11,18 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QWidget, QGridLayout, QDesktopWidget
 
-import getpass
-
-import artifactDetection as aD
-import dataExtraction as dE
-import graphPlotting as gP
-import auxiliaryFunctions as aF
-
 from EEGData import *
 
 
-
-
 class Ui_MainWindow(object):
-
     inputData = []
-    detectionMethod = "performEEPDetection"
-    isArtifact = []
-    blockNumber = 0
+    isArtifactOutput = []
     message = ""
+    resultsPath = ""
+    detectionMethod = "performEEPDetection"
+    blockNumber = 0
     fileList = []
     index = 0
-
-    examinationTime = ""
-    samplingRate = ""
-    channelsNames = []
-    eegChannelNumber = 0
-    ecgChannelNumber = 0
-
-
 
     def browseFiles(self):
         fileName = QFileDialog.getOpenFileName(self.centralwidget, "Open file", "C:/Users/" + getpass.getuser() +
@@ -49,80 +32,79 @@ class Ui_MainWindow(object):
         if path is not None:
             global EEG
             EEG = EEGData(path)
-            self.uploadButton.setEnabled(True)
+
             self.browseButton.setEnabled(False)
+            self.uploadButton.setEnabled(True)
+            if path.endswith("txt"):
+                self.methodComboBox.model().item(1).setEnabled(False)
 
     def uploadFile(self):
-        # self.inputData = dE.extractData(self.pathLineEdit.text())[0]
         self.inputData = EEG.getInputData()
 
+        self.uploadButton.setEnabled(False)
         self.methodComboBox.setEnabled(True)
         self.performButton.setEnabled(True)
-        self.uploadButton.setEnabled(False)
 
     def chooseDetectionMethod(self):
-        index = self.methodComboBox.currentIndex()
-        if index == 0:
+        currIndex = self.methodComboBox.currentIndex()
+        if currIndex == 0:
             self.detectionMethod = "performEEPDetection"
-        elif index == 1:
+        elif currIndex == 1:
             self.detectionMethod = "performECGDetection"
-        elif index == 2:
+            self.waitLabel.show()
+        elif currIndex == 2:
             self.detectionMethod = "performLFPDetection"
+
         self.methodComboBox.setEnabled(False)
 
     def performDetection(self):
         self.methodComboBox.setEnabled(False)
+
         if self.detectionMethod == "performEEPDetection":
-            result = aD.performEEPDetection(self.inputData)
+            result = EEG.performEEPDetection()
         elif self.detectionMethod == "performECGDetection":
-            result = aD.performECGDetection(self.inputData)
+            # self.waitLabel.show()
+            result = EEG.performECGDetection()
         elif self.detectionMethod == "performLFPDetection":
-            result = aD.performLFPDetection(self.inputData)
-        self.isArtifact = result[0]
-        self.blockNumber = len(self.isArtifact)
+            result = EEG.performLFPDetection()
+
+        self.isArtifactOutput = result[0]
+        self.blockNumber = len(self.isArtifactOutput)
         self.message = result[1]
-        print(self.isArtifact)
+
+        print(self.isArtifactOutput)
         print(self.blockNumber)
         print(self.message)
-        gP.plotAllBlocks(self.inputData, self.isArtifact, self.message)
-        self.showButton.setEnabled(True)
+
+        EEG.plotAllBlocks()
+
+        self.resultsPath = EEG.getResultsPath()
+
         self.performButton.setEnabled(False)
+        self.showButton.setEnabled(True)
 
     def showPlot(self):
-        """self.nextButton.setEnabled(True)
-        dir = "C:/Users/Julia/Desktop/Results/"
-        for file in os.listdir(dir):
-            pixmap = QtGui.QPixmap(os.path.join(dir, file))
-            self.plotLabel.setScaledContents(True)
-            self.plotLabel.setPixmap(pixmap)"""
-
         self.showButton.setEnabled(False)
         self.nextButton.setEnabled(True)
         self.previousButton.setEnabled(True)
         self.againButton.setEnabled(True)
 
-        dir = "../Temporal/Results/"
+        dir = self.resultsPath
 
         for file in os.listdir(dir):
             fpath = os.path.join(dir, file)
             if os.path.isfile(fpath):
                 self.fileList.append(fpath)
 
-        # self.fileList.sort()
         self.fileList.sort(key=aF.sortList)
-        # self.dirIterator = iter(self.fileList)
 
         pixmap = QtGui.QPixmap(self.fileList[self.index])
         self.plotLabel.setScaledContents(True)
         self.plotLabel.setPixmap(pixmap)
 
-
-
     def nextPlot(self):
         if self.fileList:
             try:
-                # filename = next(self.dirIterator)
-
                 self.index += 1
                 filename = self.fileList[self.index]
                 pixmap = QtGui.QPixmap(filename)
@@ -133,20 +115,17 @@ class Ui_MainWindow(object):
                     self.plotLabel.setScaledContents(True)
                     self.plotLabel.setPixmap(pixmap)
             except:
-                # the iterator has finished, restart it
+                # iteration is finished, restart it
                 # self.dirIterator = iter(self.fileList)
-                self.index = 0
+                self.index = -1
                 self.nextPlot()
         else:
             # no file list found, load an image
             self.showPlot()
 
-
     def previousPlot(self):
         if self.fileList:
             try:
-                # filename = next(self.dirIterator)
-
                 self.index -= 1
                 filename = self.fileList[self.index]
                 pixmap = QtGui.QPixmap(filename)
@@ -167,26 +146,28 @@ class Ui_MainWindow(object):
             # no file list found, load an image
             self.showPlot()
 
-
     def performAgain(self):
+        self.deleteResultsFiles()
+
         self.inputData = []
-        self.detectionMethod = "performEEPDetection"
-        self.isArtifact = []
-        self.blockNumber = 0
+        self.isArtifactOutput = []
         self.message = ""
+        self.resultsPath = ""
+        self.detectionMethod = "performEEPDetection"
+        self.blockNumber = 0
         self.fileList = []
         self.index = 0
-        self.deleteTemporalFiles()
-        self.browseButton.setEnabled(True)
-        self.againButton.setEnabled(False)
-        self.nextButton.setEnabled(False)
-        self.previousButton.setEnabled(False)
+
         self.pathLineEdit.setText("")
         self.plotLabel.clear()
 
+        self.nextButton.setEnabled(False)
+        self.previousButton.setEnabled(False)
+        self.againButton.setEnabled(False)
+        self.browseButton.setEnabled(True)
 
-    def deleteTemporalFiles(self):
-        folder = "../Temporal/Results"
+    def deleteResultsFiles(self):
+        folder = self.resultsPath
         for filename in os.listdir(folder):
             fpath = os.path.join(folder, filename)
             try:
@@ -194,7 +175,6 @@ class Ui_MainWindow(object):
                     os.unlink(fpath)
             except Exception as e:
                 print("Failed to delete %s. Reason: %s" % (fpath, e))
-
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -338,6 +318,10 @@ class Ui_MainWindow(object):
         # connecting clicking againButton with function which performs detection again (performAgain)
         self.againButton.clicked.connect(self.performAgain)
 
+        self.waitLabel = QtWidgets.QLabel(MainWindow)
+        self.waitLabel.setGeometry(QtCore.QRect(10, 110, 711, 16))
+        self.waitLabel.setObjectName("waitLabel")
+        self.waitLabel.hide()
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -365,17 +349,11 @@ class Ui_MainWindow(object):
         self.nextButton.setText(_translate("MainWindow", "Next"))
         self.showButton.setText(_translate("MainWindow", "Show plots containing artifacts"))
         self.againButton.setText(_translate("MainWindow", "Perform detection again"))
-
+        self.waitLabel.setText(_translate("MainWindow", "Please wait, it might take a while..."))
 
     def __del__(self):
         print("deleting")
-        self.deleteTemporalFiles()
-
-
-
-
-
-
+        self.deleteResultsFiles()
 
 
 
