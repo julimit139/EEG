@@ -9,7 +9,7 @@ samplingRate = 128                      # sampling rate used in examination (in 
 
 nyquistFrequency = samplingRate / 2     # Nyquist frequency - half of samplingRate (in Hz)
 
-eegChannelNumber = 20                   # number of EEG channels in examination data
+eegChannelNumber = 19                   # number of EEG channels in examination data
 ecgChannelNumber = 1                    # number of EKG channels in examination data
 
 electricFrequency = 50                  # electric network frequency in Europe (in Hz)
