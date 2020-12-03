@@ -206,39 +206,60 @@ def extractDataTxt(path):
     eegChannelNumber = 20
     ecgChannelNumber = 0
 
+    lineNumber = 0
+    informLines = 15
+    breakLines = 0
+    with open(path, "r", encoding="utf=16") as file:
+        for line in file:
+            lineNumber += 1
+            if "--- BREAK IN DATA ---" in line:
+                breakLines += 1
+    file.close()
+
+    dataLines = lineNumber - informLines - breakLines
+    inputData = np.zeros(shape=(dataLines, eegChannelNumber))
     file = open(path, "r", encoding="utf-16")
-    for i in range(15):
+    for i in range(informLines):
         line = file.readline()
-        if "original file start/end time" in line.lower():
-            pattern = "(0[1-9]|1[0-2])/(0[1-9]|1[0-9]|2[0-9]|3[0-1])/(20[0-9][0-9])\s(0[0-9]|1[0-9]|2[0-3]):(0[0-9]|1[0-9]|2[" \
-                      "0-9]|3[0-9]|4[0-9]|5[0-9]):(0[0-9]|1[0-9]|2[" \
-                      "0-9]|3[0-9]|4[0-9]|5[0-9])\t\t(0[1-9]|1[0-2])/(0[1-9]|1[0-9]|2[0-9]|3[0-1])/(20[0-9][0-9])\s(0[0-9]|1[0-9]|2[0-3]):(0[0-9]|1[0-9]|2[" \
-                      "0-9]|3[0-9]|4[0-9]|5[0-9]):(0[0-9]|1[0-9]|2[" \
-                      "0-9]|3[0-9]|4[0-9]|5[0-9])"
-            result = re.search(pattern, line)
-            res = result.group()
-            start = res[:19]
-            end = res[21:]
-            startDatetime = datetime.strptime(start, "%m/%d/%Y %H:%M:%S")
-            endDatetime = datetime.strptime(end, "%m/%d/%Y %H:%M:%S")
-            timeDif = endDatetime - startDatetime
-            examinationTime = timeDif.total_seconds()
-        elif "sampling rate" in line.lower():
+        if "sampling rate" in line.lower():
             for char in line:
                 if char.isdigit():
                     samplingRate += char
                 elif char == ".":
                     break
 
+    breakCounter = 0
+    for row in range(dataLines + breakLines):
+        content = file.readline()
+        if "--- BREAK IN DATA ---" in content:
+            breakCounter += 1
+            continue
+        else:
+            res = content.split()
+            for index in range(4):
+                res.pop(0)
+
+            for index in range(42):
+                res.pop()
+
+            shortCounter = res.count("SHORT")
+            for index in range(shortCounter):
+                res.remove("SHORT")
+
+            if "AMPSAT" in res:
+                for index in range(20):
+                    if res[index] == "AMPSAT":
+                        res[index] = 0
+
+            if len(res) != 20:
+                print("Length varies!")
+
+            inputData[row - breakCounter] = [res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9],
+                                 res[10],
+                              res[11],
+                              res[12], res[13], res[14], res[15], res[16], res[17], res[18], res[19]]
+
+    file.close()
+    examinationTime = int(len(inputData) / int(samplingRate))
+
     return inputData, int(examinationTime), int(samplingRate), channelsNames, eegChannelNumber, ecgChannelNumber
-
-
-def calculateExaminationTime(inputData, samplingRate):
-    examinationTime = int(len(inputData) / samplingRate)
-    return examinationTime
-
-
-inputData = np.zeros(shape=(637383, 20))
-samplingRate = 512
-print(calculateExaminationTime(inputData, samplingRate))
-print(len(inputData))
