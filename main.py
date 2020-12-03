@@ -14,7 +14,8 @@ from EEGData import *
 
 # inputData = genfromtxt(fname="C:/Users/Julia/Desktop/Data/PD143.txt", encoding="utf-16")
 
-lineNumber = 0
+"""lineNumber = 0
+informLines = 15
 breakLines = 0
 with open("C:/Users/Julia/Desktop/Data/PD143.txt", "r", encoding="utf=16") as file:
     for line in file:
@@ -23,13 +24,12 @@ with open("C:/Users/Julia/Desktop/Data/PD143.txt", "r", encoding="utf=16") as fi
             breakLines += 1
 file.close()
 
-informLines = 15
+
 dataLines = lineNumber - informLines - breakLines
 print("lineNumber: " + str(lineNumber))
-print("dataLines: " + str(dataLines))
 print("informLines: " + str(informLines))
 print("breakLines: " + str(breakLines))
-
+print("dataLines: " + str(dataLines))
 
 
 
@@ -48,33 +48,40 @@ for row in range(dataLines):
         continue
 
     res = content.split()
-    for i in range(4):
+    for index in range(4):
         res.pop(0)
 
+    for index in range(42):
+        res.pop()
+
     shortCounter = res.count("SHORT")
-    for i in range(shortCounter):
+    for index in range(shortCounter):
         res.remove("SHORT")
 
-    if "OFF" in res:
-        res.remove("OFF")
-    elif "ON" in res:
-        res.remove("ON")
-
-    res.pop()
-    res.pop()
+    if "AMPSAT" in res:
+        for index in range(20):
+            if res[index] == "AMPSAT":
+                res[index] = 0
 
     if len(res) != 20:
         print("Length varies!")
 
     inputData[row] = [res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10], res[11],
                       res[12], res[13], res[14], res[15], res[16], res[17], res[18], res[19]]
-    listCounter += 1
 
-print(listCounter)
 print(inputData)
+print(inputData.shape)
 
+file.close()"""
 
+myEEG = EEGData("C:/Users/Julia/Desktop/Data/PD143.txt")
+inputData = myEEG.getInputData()
+print(inputData)
+print(myEEG.getSamplingRate())
+print(myEEG.getExaminationTime())
+print(myEEG.getChannelsNames())
+print(myEEG.getEegChannelNumber())
+print(myEEG.getEcgChannelNumber())
 
-
-file.close()
-
+myEEG.performEEPDetection()
+myEEG.plotAllBlocks()
