@@ -37,6 +37,8 @@ class Ui_MainWindow(object):
             self.uploadButton.setEnabled(True)
             if path.endswith("txt"):
                 self.methodComboBox.model().item(1).setEnabled(False)
+            if path.endswith("asc"):
+                self.methodComboBox.model().item(1).setEnabled(True)
 
     def uploadFile(self):
         self.inputData = EEG.getInputData()
@@ -63,7 +65,6 @@ class Ui_MainWindow(object):
         if self.detectionMethod == "performEEPDetection":
             result = EEG.performEEPDetection()
         elif self.detectionMethod == "performECGDetection":
-            # self.waitLabel.show()
             result = EEG.performECGDetection()
         elif self.detectionMethod == "performLFPDetection":
             result = EEG.performLFPDetection()
@@ -160,6 +161,7 @@ class Ui_MainWindow(object):
 
         self.pathLineEdit.setText("")
         self.plotLabel.clear()
+        self.waitLabel.hide()
 
         self.nextButton.setEnabled(False)
         self.previousButton.setEnabled(False)
