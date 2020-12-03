@@ -94,7 +94,10 @@ def performEEPDetection(inputData, eegChannelNumber, examinationTime, samplingRa
 
     # performing EEP detection function in every channel and changing isArtifactOutput content respectively
     for channelNumber in range(eegChannelNumber):
-        channel = np.array(inputData[:, channelNumber + 1])
+        if eegChannelNumber == 19:
+            channel = np.array(inputData[:, channelNumber + 1])
+        elif eegChannelNumber == 20:
+            channel = np.array(inputData[:, channelNumber])
         isArtifact = detectEEP(channel, examinationTime, samplingRate)[0]
         blockNumber = detectEEP(channel, examinationTime, samplingRate)[1]
 
@@ -286,7 +289,10 @@ def performLFPDetection(inputData, eegChannelNumber, examinationTime, samplingRa
 
     # performing EEP detection function in every channel and changing isArtifactOutput content respectively
     for channelNumber in range(eegChannelNumber):
-        channel = np.array(inputData[:, channelNumber + 1])
+        if eegChannelNumber == 19:
+            channel = np.array(inputData[:, channelNumber + 1])
+        elif eegChannelNumber == 20:
+            channel = np.array(inputData[:, channelNumber])
         isArtifact = detectLFP(channel, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency)[0]
         blockNumber = detectLFP(channel, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency)[1]
 
