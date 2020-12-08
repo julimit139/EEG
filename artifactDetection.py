@@ -2,7 +2,6 @@ import math
 import numpy as np
 from scipy import stats
 import auxiliaryFunctions as aF
-import globalVariables as gV
 import thresholdCalculation as tC
 
 
@@ -21,7 +20,7 @@ Returns:
 """
 
 
-def detectEEP(channel):
+def detectEEP(channel, examinationTime, samplingRate):
     # creating empty list for storing tuples containing minimum and maximum channel data values for each time block
     minMaxList = []
 
@@ -29,10 +28,10 @@ def detectEEP(channel):
     blockDuration = 4
 
     # number of blocks (integer, fractional parts are ignored)
-    blockNumber = int(gV.examinationTime / blockDuration)
+    blockNumber = int(examinationTime / blockDuration)
 
     # step with which a block of channel data will be extracted
-    step = blockDuration * gV.samplingRate
+    step = blockDuration * samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
     startPosition = 0
@@ -85,7 +84,7 @@ Returns:
 """
 
 
-def performEEPDetection(inputData):
+def performEEPDetection(inputData, eegChannelNumber, examinationTime, samplingRate):
     # creating short information about type of the artifact and it's occurrence in a block
     message = "An artifact reflected by the external electrostatic potential occurrence has been detected in this " \
               "block"
@@ -94,12 +93,13 @@ def performEEPDetection(inputData):
     isArtifactOutput = []
 
     # performing EEP detection function in every channel and changing isArtifactOutput content respectively
-    for channelNumber in range(gV.eegChannelNumber):
-        channel = np.array(inputData[:, channelNumber + 1])
-        isArtifact = detectEEP(channel)[0]
-        blockNumber = detectEEP(channel)[1]
-
-        print(isArtifact.count(True))
+    for channelNumber in range(eegChannelNumber):
+        if eegChannelNumber == 19:
+            channel = np.array(inputData[:, channelNumber + 1])
+        elif eegChannelNumber == 20:
+            channel = np.array(inputData[:, channelNumber])
+        isArtifact = detectEEP(channel, examinationTime, samplingRate)[0]
+        blockNumber = detectEEP(channel, examinationTime, samplingRate)[1]
 
         # filling isArtifactOutput with isArtifact content when iterating outer for loop for the first time
         if channelNumber == 0:
@@ -133,7 +133,7 @@ Returns:
 """
 
 
-def detectECG(dataBlock):
+def detectECG(dataBlock, eegChannelNumber):
     # creating empty list fot storing correlation coefficient values for a block time and all channels
     coefficients = []
 
@@ -141,13 +141,17 @@ def detectECG(dataBlock):
     channelECG = np.array(dataBlock[:, 0])
 
     # calculating value of correlation coefficient of the signal in channel with ECG signal for all channels
-    for channelNumber in range(gV.eegChannelNumber):
+    for channelNumber in range(eegChannelNumber):
         channel = np.array(dataBlock[:, channelNumber + 1])
         coefficient = stats.pearsonr(channelECG, channel)
-        coefficients.append(coefficient[0])
+        if coefficient[0] is not np.NaN:
+            coefficients.append(coefficient[0])
 
     # maximum value in list of correlation coefficients in a time block
-    maxCoefficient = max(coefficients)
+    if len(coefficients) > 0:
+        maxCoefficient = max(coefficients)
+    else:
+        maxCoefficient = 0
 
     # returning maximum correlation coefficient
     return maxCoefficient
@@ -166,7 +170,7 @@ Returns:
 """
 
 
-def performECGDetection(inputData):
+def performECGDetection(inputData, examinationTime, samplingRate, eegChannelNumber):
     # creating short information about type of the artifact and it's occurrence in a block
     message = "An artifact derived from ECG has been detected in this block"
 
@@ -177,10 +181,10 @@ def performECGDetection(inputData):
     blockDuration = 4
 
     # number of blocks (integer, fractional parts are ignored)
-    blockNumber = int(gV.examinationTime / blockDuration)
+    blockNumber = int(examinationTime / blockDuration)
 
     # step with which a block of input data will be extracted
-    step = blockDuration * gV.samplingRate
+    step = blockDuration * samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
     startPosition = 0
@@ -193,7 +197,7 @@ def performECGDetection(inputData):
     # and checking if an artifact occurs in a block
     for block in range(blockNumber):
         dataBlock = np.array(inputData[startPosition:endPosition, :])
-        maxCoefficient = detectECG(dataBlock)
+        maxCoefficient = detectECG(dataBlock, eegChannelNumber)
         if maxCoefficient > threshold:
             isArtifactOutput.append(True)
         else:
@@ -223,7 +227,7 @@ Returns:
 """
 
 
-def detectLFP(channel):
+def detectLFP(channel, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency):
     # creating empty list for storing Fourier based function values for each time block
     fourierList = []
 
@@ -231,10 +235,10 @@ def detectLFP(channel):
     blockDuration = 4
 
     # number of blocks (integer, fractional parts are ignored)
-    blockNumber = int(gV.examinationTime / blockDuration)
+    blockNumber = int(examinationTime / blockDuration)
 
     # step with which a block of channel data will be extracted
-    step = blockDuration * gV.samplingRate
+    step = blockDuration * samplingRate
 
     # indexes at which a block starts and ends (here: the first block); they are incremented in the for loop
     startPosition = 0
@@ -242,7 +246,7 @@ def detectLFP(channel):
 
     # finding Fourier-based function values in each block and filling fourierList with them
     for block in range(blockNumber):
-        fourierValue = aF.calculateFourierFunction(channel[startPosition:endPosition])
+        fourierValue = aF.calculateFourierFunction(channel[startPosition:endPosition], samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency)
         fourierList.append(fourierValue)
         startPosition += step
         endPosition += step
@@ -276,7 +280,7 @@ Returns:
 """
 
 
-def performLFPDetection(inputData):
+def performLFPDetection(inputData, eegChannelNumber, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency):
     # creating short information about type of the artifact and it's occurrence in a block
     message = "An artifact reflected by the low-frequency potential occurrence has been detected in this block"
 
@@ -284,10 +288,13 @@ def performLFPDetection(inputData):
     isArtifactOutput = []
 
     # performing EEP detection function in every channel and changing isArtifactOutput content respectively
-    for channelNumber in range(gV.eegChannelNumber):
-        channel = np.array(inputData[:, channelNumber + 1])
-        isArtifact = detectLFP(channel)[0]
-        blockNumber = detectLFP(channel)[1]
+    for channelNumber in range(eegChannelNumber):
+        if eegChannelNumber == 19:
+            channel = np.array(inputData[:, channelNumber + 1])
+        elif eegChannelNumber == 20:
+            channel = np.array(inputData[:, channelNumber])
+        isArtifact = detectLFP(channel, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency)[0]
+        blockNumber = detectLFP(channel, examinationTime, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency)[1]
 
         # filling isArtifactOutput with isArtifact content when iterating outer for loop for the first time
         if channelNumber == 0:

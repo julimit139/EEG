@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.fft import fft
 import statistics
-import globalVariables as gV
 
 
 """
@@ -69,23 +68,23 @@ Returns:
 """
 
 
-def calculateFourierFunction(data):
+def calculateFourierFunction(data, samplingRate, lambdaFrequency, nyquistFrequency, electricFrequency):
     # ndarray containing calculated power spectrum of given data
     powerSpectrum = calculateFourierSquareModulus(data)
 
     # calculating frequency values from 0 to half of sampling rate
     # number of frequency values is equal to length of powerSpectrum
-    frequency = np.linspace(0, gV.samplingRate/2, len(powerSpectrum))
+    frequency = np.linspace(0, samplingRate/2, len(powerSpectrum))
 
     # extracting indexes of frequency ndarray where a condition is met
-    nominatorLimit = np.where(frequency < gV.lambdaFrequency)
+    nominatorLimit = np.where(frequency < lambdaFrequency)
 
     # calculating sum of powerSpectrum elements with extracted indexes
     nominator = sum(powerSpectrum[nominatorLimit])
 
     # extracting indexes of frequency ndarray where conditions are met
-    denominatorLimitFirst = np.where(frequency < gV.nyquistFrequency)
-    denominatorLimitSecond = np.where((frequency > (gV.electricFrequency-2)) & (frequency < (gV.electricFrequency+2)))
+    denominatorLimitFirst = np.where(frequency < nyquistFrequency)
+    denominatorLimitSecond = np.where((frequency > (electricFrequency-2)) & (frequency < (electricFrequency+2)))
 
     # calculating difference of sums of powerSpectrum elements with extracted indexes
     denominator = sum(powerSpectrum[denominatorLimitFirst]) - sum(powerSpectrum[denominatorLimitSecond])

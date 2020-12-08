@@ -1,14 +1,7 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import scipy.fft as fft
-import auxiliaryFunctions as aF
-# import artifactDetection as aD
-import globalVariables as gV
 import dataExtraction as dE
-import math
 
-from TMPartifactDetection import *
-from TMPgraphPlotting import *
+from artifactDetection import *
+from graphPlotting import *
 
 """pathAsc = "C:/Users/Julia/Desktop/Data/test.asc"
 pathTxt = "C:/Users/Julia/Desktop/Data/PD143.txt"

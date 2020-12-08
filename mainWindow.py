@@ -9,7 +9,8 @@
 
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QWidget, QGridLayout, QDesktopWidget
+from PyQt5.QtWidgets import QFileDialog
+import shutil
 
 from EEGData import *
 
@@ -24,21 +25,31 @@ class Ui_MainWindow(object):
     fileList = []
     index = 0
 
+    EEG = None
+
     def browseFiles(self):
+        self.warnLabel.setText("")
+
         fileName = QFileDialog.getOpenFileName(self.centralwidget, "Open file", "C:/Users/" + getpass.getuser() +
             "/Desktop", "ascii or txt files (*.asc *.txt)")
-        self.pathLineEdit.setText(fileName[0])
-        path = self.pathLineEdit.text()
+        path = fileName[0]
         if path is not None:
-            global EEG
-            EEG = EEGData(path)
+            if not dE.checkFile(path):
+                self.warnLabel.setText("You chose a file which doesn't contain EEG examination data. Please "
+                                       "choose a proper file.")
 
-            self.browseButton.setEnabled(False)
-            self.uploadButton.setEnabled(True)
-            if path.endswith("txt"):
-                self.methodComboBox.model().item(1).setEnabled(False)
-            if path.endswith("asc"):
-                self.methodComboBox.model().item(1).setEnabled(True)
+            else:
+                self.pathLineEdit.setText(path)
+
+                global EEG
+                EEG = EEGData(path)
+
+                self.browseButton.setEnabled(False)
+                self.uploadButton.setEnabled(True)
+                if path.endswith("txt"):
+                    self.methodComboBox.model().item(1).setEnabled(False)
+                if path.endswith("asc"):
+                    self.methodComboBox.model().item(1).setEnabled(True)
 
     def uploadFile(self):
         self.inputData = EEG.getInputData()
@@ -53,7 +64,7 @@ class Ui_MainWindow(object):
             self.detectionMethod = "performEEPDetection"
         elif currIndex == 1:
             self.detectionMethod = "performECGDetection"
-            self.waitLabel.show()
+            self.warnLabel.setText("Please wait, it might take a while...")
         elif currIndex == 2:
             self.detectionMethod = "performLFPDetection"
 
@@ -161,7 +172,7 @@ class Ui_MainWindow(object):
 
         self.pathLineEdit.setText("")
         self.plotLabel.clear()
-        self.waitLabel.hide()
+        self.warnLabel.setText("")
 
         self.nextButton.setEnabled(False)
         self.previousButton.setEnabled(False)
@@ -170,13 +181,15 @@ class Ui_MainWindow(object):
 
     def deleteResultsFiles(self):
         folder = self.resultsPath
-        for filename in os.listdir(folder):
+        """for filename in os.listdir(folder):
             fpath = os.path.join(folder, filename)
             try:
                 if os.path.isfile(fpath) or os.path.islink(fpath):
                     os.unlink(fpath)
             except Exception as e:
-                print("Failed to delete %s. Reason: %s" % (fpath, e))
+                print("Failed to delete %s. Reason: %s" % (fpath, e))"""
+
+        shutil.rmtree(folder, ignore_errors=True)
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -320,10 +333,12 @@ class Ui_MainWindow(object):
         # connecting clicking againButton with function which performs detection again (performAgain)
         self.againButton.clicked.connect(self.performAgain)
 
-        self.waitLabel = QtWidgets.QLabel(MainWindow)
-        self.waitLabel.setGeometry(QtCore.QRect(10, 110, 711, 16))
-        self.waitLabel.setObjectName("waitLabel")
-        self.waitLabel.hide()
+        self.warnLabel = QtWidgets.QLabel(MainWindow)
+        self.warnLabel.setGeometry(QtCore.QRect(10, 110, 711, 16))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.warnLabel.setFont(font)
+        self.warnLabel.setObjectName("warnLabel")
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -351,7 +366,7 @@ class Ui_MainWindow(object):
         self.nextButton.setText(_translate("MainWindow", "Next"))
         self.showButton.setText(_translate("MainWindow", "Show plots containing artifacts"))
         self.againButton.setText(_translate("MainWindow", "Perform detection again"))
-        self.waitLabel.setText(_translate("MainWindow", "Please wait, it might take a while..."))
+        self.warnLabel.setText(_translate("MainWindow", ""))
 
     def __del__(self):
         print("deleting")
